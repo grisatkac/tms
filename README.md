@@ -6,4 +6,3 @@ Git flow
      --- demo  
 ```
 Let's update demo branch only.
-We will create Pull Request.
