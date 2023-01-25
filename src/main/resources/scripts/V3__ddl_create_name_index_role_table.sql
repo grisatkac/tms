@@ -1,0 +1,1 @@
+create index name_idx on role(name);

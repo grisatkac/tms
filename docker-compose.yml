@@ -1,0 +1,78 @@
+version: "3"
+
+services:
+
+  todo:
+    build:
+      context: .
+    container_name: todo
+    image: todo:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+    networks:
+      - todo-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql:/mysql:3306/todo
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_FLYWAY_URL=jdbc:mysql://mysql:3306
+      - SPRING_PROFILES_ACTIVE=form
+
+  mysql:
+    image: mysql:8.0.31
+    container_name: mysql
+    environment:
+      - MYSQL_USER=todo
+      - MYSQL_PASSWORD=todo
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - database:/var/lib/mysql
+    ports:
+      - 3310:3306
+    networks:
+      - todo-network
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+
+networks:
+  todo-network:
+
+volumes:
+  database:
+
+# docker build . -t {appname}:latest
+# docker login --username {username} --password {pass}
+# docker images
+# docker tag {imageId} {reponame}/{appname}:{version}
+# docker {reponame}/{appname}:{version}
+
+# Developer
+# 1.0 -> 1.1 (added new features)
+# commit to GitHub
+
+# DevOps - CI/CD
+# GitHub Action (Hook) - trigger Docker build (Dockerfile)
+# Add tag to image
+# Docker push to Hub app:1.1 - Internal Docker Storage
+# AWS running todo:1.0
+# AWS Hook - pull Docker Hub for new version todo:1.1
+# AWS Pipeline - deploy to DEV new version
+
+# SUCCESS - FAILED - fix - SUCCESS
+
+# Developer
+# 1.1 -> 1.2 (added new features)
+# commit to GitHub
+
+# calendar please a date (30.12.2015)
+# { "date": "30.12.2015" }
+# date to timestamp 12424647377 - DB
+# { "date": 30.12.2015 }
+# date.format { "date": "30th of December" }
+# date.format { "date": "30.12.2015" }
+
+# GitHub - application
+# commit - start Docker build and push
+# pull request - send email notification

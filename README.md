@@ -6,3 +6,5 @@ Git flow
      --- demo  
 ```
 Let's update demo branch only.
+
+Added CI process.
