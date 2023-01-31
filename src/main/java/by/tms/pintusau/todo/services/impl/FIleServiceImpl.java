@@ -4,12 +4,15 @@ import by.tms.pintusau.todo.controllers.UploadController;
 import by.tms.pintusau.todo.dtos.UploadResult;
 import by.tms.pintusau.todo.exceptions.UploadFailedException;
 import by.tms.pintusau.todo.services.FileService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +26,11 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class FIleServiceImpl implements FileService {
 
     private static final Path RELATIVE_PATH = Path.of(".");
+    private final S3Client s3Client;
 
     @Override
     public UploadResult upload(MultipartFile file) {
@@ -36,6 +41,12 @@ public class FIleServiceImpl implements FileService {
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, destinationFile,
                     StandardCopyOption.REPLACE_EXISTING);
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket("test-bucket")
+                    .key(file.getOriginalFilename())
+                    .build();
+            s3Client.putObject(putObjectRequest, destinationFile);
         } catch (Exception e) {
             throw new UploadFailedException(String.format("Cannot upload file: %s", e.getMessage()));
         }
@@ -76,5 +87,13 @@ public class FIleServiceImpl implements FileService {
         } catch (MalformedURLException e) {
             throw new UploadFailedException("Could not read file: " + filename);
         }
+    }
+
+    @Override
+    public void delete(String key) {
+        s3Client.deleteObject(request -> request
+                .bucket("test-bucket")
+                .key(key)
+                .build());
     }
 }

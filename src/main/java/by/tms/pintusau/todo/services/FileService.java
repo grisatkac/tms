@@ -4,6 +4,7 @@ import by.tms.pintusau.todo.dtos.UploadResult;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface FileService {
     Path load(String filename);
 
     Resource loadAsResource(String filename);
+
+    void delete(String key);
 }
